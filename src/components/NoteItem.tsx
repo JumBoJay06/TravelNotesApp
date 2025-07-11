@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
 import { Note } from '../redux/notesSlice';
 
 interface NoteItemProps {
@@ -7,9 +7,10 @@ interface NoteItemProps {
   onPress: () => void;
 }
 
-const NoteItem: React.FC<NoteItemProps> = ({ note, onPress }) => {
+const NoteItem= ({ note, onPress }: NoteItemProps) => {
+    console.log('筆記列表:', note);
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
+    <Pressable style={styles.container} onPress={onPress}>
       {note.imageUri && (
         <Image source={{ uri: note.imageUri }} style={styles.image} />
       )}
@@ -19,33 +20,29 @@ const NoteItem: React.FC<NoteItemProps> = ({ note, onPress }) => {
           {new Date(note.date).toLocaleDateString()}
         </Text>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     flexDirection: 'row',
-    padding: 15,
-    marginHorizontal: 10,
-    marginVertical: 5,
+    margin: 8,
+    padding: 16,
     backgroundColor: '#fff',
-    borderRadius: 10,
+    borderRadius: 8,
     elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
     alignItems: 'center',
   },
   image: {
     width: 60,
     height: 60,
     borderRadius: 8,
-    marginRight: 15,
+    marginRight: 1,
   },
   infoContainer: {
-    flex: 1,
+    margin: 8,
   },
   title: {
     fontSize: 18,
