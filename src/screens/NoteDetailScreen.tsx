@@ -53,7 +53,7 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
     };
 
     const handleEditPress = () => {
-        navigation.navigate('AddNote', { noteId });
+        navigation.navigate('NoteAddEditor', { noteId });
     };
 
     if (!note) {

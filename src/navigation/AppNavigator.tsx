@@ -3,13 +3,13 @@ import { Platform, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import NoteListScreen from '../screens/NoteListScreen';
-import AddNoteScreen from '../screens/AddNoteScreen';
+import NoteAddEditScreen from '../screens/NoteAddEditScreen';
 import NoteDetailScreen from '../screens/NoteDetailScreen';
 
 // 定義導覽器的參數型別
 export type RootStackParamList = {
     NoteList: undefined; // 列表頁不需要參數
-    AddNote: { noteId?: string };  // 新增頁不需要參數
+    NoteAddEditor: { noteId?: string };  // 編輯頁，noteId 是可選的
     NoteDetail: { noteId: string }; // 細節頁需要傳入 noteId
 };
 
@@ -44,9 +44,9 @@ const AppNavigator = () => {
                         options={{ title: '旅遊筆記列表' }}
                     />
                     <Stack.Screen
-                        name="AddNote"
-                        component={AddNoteScreen}
-                        options={{ title: '新增筆記' }}
+                        name="NoteAddEditor"
+                        component={NoteAddEditScreen}
+                        // 標題將由 NoteEditorScreen 動態設定
                     />
                     <Stack.Screen
                         name="NoteDetail"

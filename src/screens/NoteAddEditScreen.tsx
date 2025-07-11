@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { View, StyleSheet, TextInput, Pressable, Text, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteProp } from '@react-navigation/native';
@@ -8,20 +8,20 @@ import { addNote, updateNote } from '../redux/notesSlice';
 import ImagePicker from '../components/ImagePicker';
 import { RootState } from '../redux/store';
 
-type AddNoteScreenRouteProp = RouteProp<RootStackParamList, 'AddNote'>;
-type AddNoteScreenNavigationProp = StackNavigationProp<RootStackParamList, 'AddNote'>;
+type NoteAddEditScreenRouteProp = RouteProp<RootStackParamList, 'NoteAddEditor'>;
+type NoteAddEditScreenNavigationProp = StackNavigationProp<RootStackParamList, 'NoteAddEditor'>;
 
 interface Props {
-    route: AddNoteScreenRouteProp;
-    navigation: AddNoteScreenNavigationProp;
+    route: NoteAddEditScreenRouteProp;
+    navigation: NoteAddEditScreenNavigationProp;
 }
 
-const AddNoteScreen = ({ route, navigation }: Props) => {
+const NoteAddEditScreen = ({ route, navigation }: Props) => {
     const noteId = route.params?.noteId || null;
     const noteToEdit = useSelector((state: RootState) =>
         noteId ? state.notes.notes.find((n) => n.id === noteId) : null
     );
-    const [title, setTitle] = useState(noteToEdit?.title || '');
+    const [title, setTitle] = useState(noteToEdit?.title || ''); // 這裡的初始值設定是好的
     const [content, setContent] = useState(noteToEdit?.content || '');
     const [selectedImage, setSelectedImage] = useState<string | null>(noteToEdit?.imageUri || null);
     
@@ -29,13 +29,14 @@ const AddNoteScreen = ({ route, navigation }: Props) => {
     const dispatch = useDispatch();
 
     useEffect(() => {
-        if (noteToEdit) {
-            setTitle(noteToEdit.title);
-            setContent(noteToEdit.content);
-            setSelectedImage(noteToEdit.imageUri);
-        }
-    }, [noteToEdit]);
+        // 狀態初始化已經在 useState 中處理，這個 useEffect 可以移除
+        // 如果保留，它會在 noteToEdit 變化時重置使用者的輸入
+    }, [noteToEdit]); // 建議移除此 useEffect
 
+    useLayoutEffect(() => {
+        navigation.setOptions({ title: noteId ? '編輯筆記' : '新增筆記' });
+    }, [navigation, noteId]);
+    
     const imageTakenHandler = (imageUri: string | null) => {
         setSelectedImage(imageUri);
     };
@@ -120,4 +121,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default AddNoteScreen;
+export default NoteAddEditScreen;

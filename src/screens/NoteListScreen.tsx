@@ -39,22 +39,22 @@ const NoteListScreen = ({ navigation }: Props) => {
             <View style={{ flex: 1 }}>
                 {
                     notes.length === 0 ?
-                    <View style={styles.emptyListText}><Text>還沒有任何筆記，點擊下方按鈕新增吧！</Text></View> :
+                        <View style={styles.emptyListText}><Text>還沒有任何筆記，點擊下方按鈕新增吧！</Text></View> :
                         <View style={styles.noteList}>
                             <FlatList
-                            data={notes}
-                            keyExtractor={(item) => item.id}
-                            renderItem={({ item }) => (
-                                <NoteItem
-                                    note={item}
-                                    onPress={() => navigation.navigate('NoteDetail', { noteId: item.id })}
-                                />
-                            )}
-                        />
+                                data={notes}
+                                keyExtractor={(item) => item.id}
+                                renderItem={({ item }) => (
+                                    <NoteItem
+                                        note={item}
+                                        onPress={() => navigation.navigate('NoteDetail', { noteId: item.id })}
+                                    />
+                                )}
+                            />
                         </View>
                 }
             </View>
-            <Pressable onPress={() => navigation.navigate('AddNote')} style={styles.addPressable}>
+            <Pressable onPress={() => navigation.navigate('NoteAddEditor')} style={styles.addPressable}>
                 <Text style={styles.addText}>新增筆記</Text>
             </Pressable>
         </View>
