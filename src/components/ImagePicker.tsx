@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { View, Pressable, Image, StyleSheet, Alert, Text } from 'react-native';
+import { View, Pressable, Image, StyleSheet, Alert, Text, FlatList } from 'react-native';
 import * as ExpoImagePicker from 'expo-image-picker';
+import { Ionicons } from '@expo/vector-icons';
 
 interface ImagePickerProps {
-    originImage?: string;
-    onImageTaken: (uri: string | null) => void;
+    originImages?: string[];
+    onImagesTaken: (uris: string[]) => void;
 }
 
-const ImagePicker = ({ onImageTaken, originImage }: ImagePickerProps) => {
-    const [pickedImage, setPickedImage] = useState<string | null>(originImage || null);
+const ImagePicker = ({ onImagesTaken, originImages }: ImagePickerProps) => {
+    const [pickedImages, setPickedImages] = useState<string[]>(originImages || []);
 
     const verifyPermissions = async () => {
         const { status } = await ExpoImagePicker.requestMediaLibraryPermissionsAsync();
@@ -30,24 +31,47 @@ const ImagePicker = ({ onImageTaken, originImage }: ImagePickerProps) => {
         }
 
         const image = await ExpoImagePicker.launchImageLibraryAsync({
-            allowsEditing: true,
+            allowsEditing: false,
             aspect: [16, 9],
-            quality: 0.5, // 壓縮圖片品質以節省空間
+            quality: 0.5,
+            allowsMultipleSelection: true, // 允許多選
         });
 
         if (!image.canceled) {
-            setPickedImage(image.assets[0].uri);
-            onImageTaken(image.assets[0].uri);
+            const newImages = image.assets.map(asset => asset.uri);
+            const updatedImages = [...pickedImages, ...newImages];
+            setPickedImages(updatedImages);
+            onImagesTaken(updatedImages);
         }
+    };
+    
+    const removeImageHandler = (uriToRemove: string) => {
+        const updatedImages = pickedImages.filter(uri => uri !== uriToRemove);
+        setPickedImages(updatedImages);
+        onImagesTaken(updatedImages);
     };
 
     return (
         <View style={styles.imagePicker}>
-            <View style={styles.imagePreview}>
-                {!pickedImage ? (
-                    <Text>尚未選擇圖片。</Text>
+            <View style={styles.imagePreviewContainer}>
+                {pickedImages.length === 0 ? (
+                    <View style={styles.imagePreviewEmpty}>
+                        <Text>尚未選擇圖片。</Text>
+                    </View>
                 ) : (
-                    <Image style={styles.image} source={{ uri: pickedImage }} />
+                    <FlatList
+                        data={pickedImages}
+                        horizontal
+                        keyExtractor={(item) => item}
+                        renderItem={({ item }) => (
+                            <View style={styles.imageContainer}>
+                                <Image style={styles.image} source={{ uri: item }} />
+                                <Pressable style={styles.deleteButton} onPress={() => removeImageHandler(item)}>
+                                    <Ionicons name="close" size={24} color="#fff" />
+                                </Pressable>
+                            </View>
+                        )}
+                    />
                 )}
             </View>
             <Pressable onPress={takeImageHandler} style={styles.imagePickerButton}>
@@ -62,20 +86,37 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 16,
     },
-    imagePreview: {
+    imagePreviewContainer: {
         width: '100%',
         height: 200,
         marginBottom: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
         borderColor: '#ccc',
         borderWidth: 1,
         borderRadius: 8,
+        justifyContent: 'center',
+    },
+    imagePreviewEmpty: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1,
+    },
+    imageContainer: {
+        width: 200,
+        height: 200,
+        marginHorizontal: 8,
+        position: 'relative',
     },
     image: {
         width: '100%',
         height: '100%',
         borderRadius: 8,
+    },
+    deleteButton: {
+        position: 'absolute',
+        top: 5,
+        right: 5,
+        backgroundColor: '#0c0c0c95',
+        borderRadius: 12,
     },
     imagePickerButton: {
         backgroundColor: '#007cdb',

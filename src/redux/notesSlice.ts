@@ -6,7 +6,7 @@ export interface Note {
     id: string;
     title: string;
     content: string;
-    imageUri: string | null; // 圖片的 URI
+    imageUris: string[]; // 圖片的 URI 陣列
     date: string;
 }
 

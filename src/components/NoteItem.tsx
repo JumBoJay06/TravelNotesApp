@@ -10,8 +10,8 @@ interface NoteItemProps {
 const NoteItem = ({ note, onPress }: NoteItemProps) => {
     return (
         <Pressable style={styles.container} onPress={onPress}>
-            {note.imageUri && (
-                <Image source={{ uri: note.imageUri }} style={styles.image} />
+            {note.imageUris && note.imageUris.length > 0 && (
+                <Image source={{ uri: note.imageUris[0] }} style={styles.image} />
             )}
             <View style={styles.infoContainer}>
                 <Text style={styles.title}>{note.title}</Text>

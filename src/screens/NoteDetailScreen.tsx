@@ -1,5 +1,5 @@
-import React, { useLayoutEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, Pressable, Alert } from 'react-native';
+import React, { useLayoutEffect } from 'react';
+import { View, Text, StyleSheet, Image, ScrollView, Pressable, Alert, FlatList, Dimensions } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -14,6 +14,8 @@ interface Props {
     route: NoteDetailScreenRouteProp;
     navigation: NoteDetailScreenNavigationProp;
 }
+
+const { width } = Dimensions.get('window');
 
 const NoteDetailScreen = ({ route, navigation }: Props) => {
     const { noteId } = route.params;
@@ -67,8 +69,18 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
     return (
         <View style={{ flex: 1 }}>
             <ScrollView style={{ flex: 1 }}>
-                {note.imageUri && (
-                    <Image source={{ uri: note.imageUri }} style={styles.image} />
+                {note.imageUris && note.imageUris.length > 0 && (
+                     <FlatList
+                        
+                        data={note.imageUris}
+                        horizontal={true}
+                        pagingEnabled={true}
+                        keyExtractor={(item, index) => `${item}-${index}`}
+                        renderItem={({ item }) => (
+                            <Image source={{ uri: item }} style={styles.image} />
+                        )}
+                        showsHorizontalScrollIndicator={true}
+                    />
                 )}
                 <View style={styles.contentContainer}>
                     <Text style={styles.title}>{note.title}</Text>
@@ -89,8 +101,9 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
 
 const styles = StyleSheet.create({
     image: {
-        width: '100%',
+        width: width,
         height: 250,
+        marginBottom: 8,
     },
     contentContainer: {
         padding: 16,

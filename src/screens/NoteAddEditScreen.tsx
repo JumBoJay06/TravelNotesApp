@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useLayoutEffect } from 'react';
 import { View, StyleSheet, TextInput, Pressable, Text, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteProp } from '@react-navigation/native';
@@ -21,24 +21,19 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
     const noteToEdit = useSelector((state: RootState) =>
         noteId ? state.notes.notes.find((n) => n.id === noteId) : null
     );
-    const [title, setTitle] = useState(noteToEdit?.title || ''); // 這裡的初始值設定是好的
+    const [title, setTitle] = useState(noteToEdit?.title || '');
     const [content, setContent] = useState(noteToEdit?.content || '');
-    const [selectedImage, setSelectedImage] = useState<string | null>(noteToEdit?.imageUri || null);
+    const [selectedImages, setSelectedImages] = useState<string[]>(noteToEdit?.imageUris || []);
     
 
     const dispatch = useDispatch();
-
-    useEffect(() => {
-        // 狀態初始化已經在 useState 中處理，這個 useEffect 可以移除
-        // 如果保留，它會在 noteToEdit 變化時重置使用者的輸入
-    }, [noteToEdit]); // 建議移除此 useEffect
 
     useLayoutEffect(() => {
         navigation.setOptions({ title: noteId ? '編輯筆記' : '新增筆記' });
     }, [navigation, noteId]);
     
-    const imageTakenHandler = (imageUri: string | null) => {
-        setSelectedImage(imageUri);
+    const imageTakenHandler = (imageUris: string[]) => {
+        setSelectedImages(imageUris);
     };
 
     const saveNoteHandler = () => {
@@ -49,10 +44,10 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
 
         if (noteId && noteToEdit) {
             // 編輯現有筆記
-            dispatch(updateNote({title, content, imageUri: selectedImage, id: noteId}));
+            dispatch(updateNote({title, content, imageUris: selectedImages, id: noteId}));
         } else {
             // 新增新筆記
-             dispatch(addNote({ title, content, imageUri: selectedImage}));
+             dispatch(addNote({ title, content, imageUris: selectedImages}));
         }
     
         navigation.goBack(); // 返回上一頁
@@ -67,7 +62,7 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
                     onChangeText={setTitle}
                     value={title}
                 />
-                <ImagePicker onImageTaken={imageTakenHandler} originImage={selectedImage} />
+                <ImagePicker onImagesTaken={imageTakenHandler} originImages={selectedImages} />
                 <TextInput
                     style={[styles.textInput, styles.textArea]}
                     placeholder="內容..."
