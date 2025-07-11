@@ -1,5 +1,5 @@
 import React, { useState, useLayoutEffect } from 'react';
-import { View, StyleSheet, TextInput, Pressable, Text, Alert } from 'react-native';
+import { View, StyleSheet, TextInput, Pressable, Text, Alert, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -24,14 +24,14 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
     const [title, setTitle] = useState(noteToEdit?.title || '');
     const [content, setContent] = useState(noteToEdit?.content || '');
     const [selectedImages, setSelectedImages] = useState<string[]>(noteToEdit?.imageUris || []);
-    
+
 
     const dispatch = useDispatch();
 
     useLayoutEffect(() => {
         navigation.setOptions({ title: noteId ? '編輯筆記' : '新增筆記' });
     }, [navigation, noteId]);
-    
+
     const imageTakenHandler = (imageUris: string[]) => {
         setSelectedImages(imageUris);
     };
@@ -44,37 +44,43 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
 
         if (noteId && noteToEdit) {
             // 編輯現有筆記
-            dispatch(updateNote({title, content, imageUris: selectedImages, id: noteId}));
+            dispatch(updateNote({ title, content, imageUris: selectedImages, id: noteId }));
         } else {
             // 新增新筆記
-             dispatch(addNote({ title, content, imageUris: selectedImages}));
+            dispatch(addNote({ title, content, imageUris: selectedImages }));
         }
-    
+
         navigation.goBack(); // 返回上一頁
     };
 
     return (
-        <View style={{ flex: 1 }}>
-            <View style={styles.form}>
-                <TextInput
-                    style={styles.textTitleInput}
-                    placeholder="標題"
-                    onChangeText={setTitle}
-                    value={title}
-                />
-                <ImagePicker onImagesTaken={imageTakenHandler} originImages={selectedImages} />
-                <TextInput
-                    style={[styles.textInput, styles.textArea]}
-                    placeholder="內容..."
-                    onChangeText={setContent}
-                    value={content}
-                    multiline
-                />
-            </View>
-            <Pressable style={styles.buttonContainer} onPress={saveNoteHandler}>
+        <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={90} // 可以微調這個數值
+        >
+            <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+                <View style={styles.form}>
+                    <TextInput
+                        style={styles.textTitleInput}
+                        placeholder="標題"
+                        onChangeText={setTitle}
+                        value={title}
+                    />
+                    <ImagePicker onImagesTaken={imageTakenHandler} originImages={selectedImages} />
+                    <TextInput
+                        style={[styles.textInput, styles.textArea]}
+                        placeholder="內容..."
+                        onChangeText={setContent}
+                        value={content}
+                        multiline
+                    />
+                </View>
+            </ScrollView>
+             <Pressable style={styles.buttonContainer} onPress={saveNoteHandler}>
                 <Text style={styles.buttonText}>儲存筆記</Text>
             </Pressable>
-        </View>
+        </KeyboardAvoidingView>
 
     );
 };

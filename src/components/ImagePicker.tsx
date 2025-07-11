@@ -10,6 +10,7 @@ interface ImagePickerProps {
 
 const ImagePicker = ({ onImagesTaken, originImages }: ImagePickerProps) => {
     const [pickedImages, setPickedImages] = useState<string[]>(originImages || []);
+    const [isLoading, setIsLoading] = useState(false);
 
     const verifyPermissions = async () => {
         const { status } = await ExpoImagePicker.requestMediaLibraryPermissionsAsync();
@@ -25,8 +26,10 @@ const ImagePicker = ({ onImagesTaken, originImages }: ImagePickerProps) => {
     };
 
     const takeImageHandler = async () => {
+        setIsLoading(true);
         const hasPermission = await verifyPermissions();
         if (!hasPermission) {
+            setIsLoading(false);
             return;
         }
 
@@ -43,6 +46,7 @@ const ImagePicker = ({ onImagesTaken, originImages }: ImagePickerProps) => {
             setPickedImages(updatedImages);
             onImagesTaken(updatedImages);
         }
+        setIsLoading(false);
     };
     
     const removeImageHandler = (uriToRemove: string) => {
@@ -50,6 +54,10 @@ const ImagePicker = ({ onImagesTaken, originImages }: ImagePickerProps) => {
         setPickedImages(updatedImages);
         onImagesTaken(updatedImages);
     };
+
+    if (isLoading) {
+        return <View style={styles.imageLoadingContainer}><Text>載入中...</Text></View>;
+    }
 
     return (
         <View style={styles.imagePicker}>
@@ -61,7 +69,7 @@ const ImagePicker = ({ onImagesTaken, originImages }: ImagePickerProps) => {
                 ) : (
                     <FlatList
                         data={pickedImages}
-                        horizontal
+                        horizontal={true}
                         keyExtractor={(item) => item}
                         renderItem={({ item }) => (
                             <View style={styles.imageContainer}>
@@ -88,7 +96,6 @@ const styles = StyleSheet.create({
     },
     imagePreviewContainer: {
         width: '100%',
-        height: 200,
         marginBottom: 16,
         borderColor: '#ccc',
         borderWidth: 1,
@@ -98,12 +105,22 @@ const styles = StyleSheet.create({
     imagePreviewEmpty: {
         alignItems: 'center',
         justifyContent: 'center',
+        paddingVertical: 100,
         flex: 1,
+    },
+    imageLoadingContainer: {
+        width: '100%',
+        marginBottom: 16,
+        borderColor: '#ccc',
+        borderWidth: 1,
+        borderRadius: 8,
+        paddingVertical: 100,
+        justifyContent: 'center',
     },
     imageContainer: {
         width: 200,
         height: 200,
-        marginHorizontal: 8,
+        margin: 8,
         position: 'relative',
     },
     image: {
@@ -113,20 +130,21 @@ const styles = StyleSheet.create({
     },
     deleteButton: {
         position: 'absolute',
-        top: 5,
-        right: 5,
+        top: 16,
+        right: 16,
         backgroundColor: '#0c0c0c95',
         borderRadius: 12,
     },
     imagePickerButton: {
-        backgroundColor: '#007cdb',
+        borderColor: '#007cdb',
+        borderWidth: 1,
         padding: 16,
         borderRadius: 8,
         alignItems: 'center',
         width: '100%',
     },
     buttonText: {
-        color: '#fff',
+        color: '#000',
         fontSize: 18,
         fontWeight: 'bold',
     },

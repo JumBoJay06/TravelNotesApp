@@ -71,7 +71,6 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
             <ScrollView style={{ flex: 1 }}>
                 {note.imageUris && note.imageUris.length > 0 && (
                      <FlatList
-                        
                         data={note.imageUris}
                         horizontal={true}
                         pagingEnabled={true}
