@@ -2,9 +2,9 @@ import { configureStore } from '@reduxjs/toolkit';
 import notesReducer from './notesSlice';
 
 export const store = configureStore({
-  reducer: {
-    notes: notesReducer,
-  },
+    reducer: {
+        notes: notesReducer,
+    },
 });
 
 // 定義 RootState 和 AppDispatch 的型別，方便在應用程式中使用

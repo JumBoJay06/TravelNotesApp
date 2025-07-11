@@ -3,11 +3,12 @@ import { View, Pressable, Image, StyleSheet, Alert, Text } from 'react-native';
 import * as ExpoImagePicker from 'expo-image-picker';
 
 interface ImagePickerProps {
+    originImage?: string;
     onImageTaken: (uri: string | null) => void;
 }
 
-const ImagePicker = ({ onImageTaken }: ImagePickerProps) => {
-    const [pickedImage, setPickedImage] = useState<string | null>(null);
+const ImagePicker = ({ onImageTaken, originImage }: ImagePickerProps) => {
+    const [pickedImage, setPickedImage] = useState<string | null>(originImage || null);
 
     const verifyPermissions = async () => {
         const { status } = await ExpoImagePicker.requestMediaLibraryPermissionsAsync();

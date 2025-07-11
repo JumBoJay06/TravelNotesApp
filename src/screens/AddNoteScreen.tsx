@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TextInput, Pressable, ScrollView, Text, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, TextInput, Pressable, Text, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { addNote } from '../redux/notesSlice';
+import { addNote, updateNote } from '../redux/notesSlice';
 import ImagePicker from '../components/ImagePicker';
 import { RootState } from '../redux/store';
 
@@ -17,23 +17,24 @@ interface Props {
 }
 
 const AddNoteScreen = ({ route, navigation }: Props) => {
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
-    const { noteId } = route.params;
+    const noteId = route.params?.noteId || null;
+    const noteToEdit = useSelector((state: RootState) =>
+        noteId ? state.notes.notes.find((n) => n.id === noteId) : null
+    );
+    const [title, setTitle] = useState(noteToEdit?.title || '');
+    const [content, setContent] = useState(noteToEdit?.content || '');
+    const [selectedImage, setSelectedImage] = useState<string | null>(noteToEdit?.imageUri || null);
+    
 
     const dispatch = useDispatch();
 
-    useSelector((state: RootState) => {
-        if (noteId) {
-            const foundNote = state.notes.notes.find((n) => n.id === noteId);
-            setTitle(foundNote?.title || '');
-            setContent(foundNote?.content || '');
-            setSelectedImage(foundNote?.imageUri || null);
-            return foundNote || null;
+    useEffect(() => {
+        if (noteToEdit) {
+            setTitle(noteToEdit.title);
+            setContent(noteToEdit.content);
+            setSelectedImage(noteToEdit.imageUri);
         }
-        return null;
-    });
+    }, [noteToEdit]);
 
     const imageTakenHandler = (imageUri: string | null) => {
         setSelectedImage(imageUri);
@@ -45,28 +46,35 @@ const AddNoteScreen = ({ route, navigation }: Props) => {
             return;
         }
 
-        dispatch(addNote({ title, content, imageUri: selectedImage, id: noteId || null  }));
+        if (noteId && noteToEdit) {
+            // 編輯現有筆記
+            dispatch(updateNote({title, content, imageUri: selectedImage, id: noteId}));
+        } else {
+            // 新增新筆記
+             dispatch(addNote({ title, content, imageUri: selectedImage}));
+        }
+    
         navigation.goBack(); // 返回上一頁
     };
 
     return (
         <View style={{ flex: 1 }}>
-                <View style={styles.form}>
-                    <TextInput
-                        style={styles.textTitleInput}
-                        placeholder="標題"
-                        onChangeText={setTitle}
-                        value={title}
-                    />
-                    <ImagePicker onImageTaken={imageTakenHandler} />
-                    <TextInput
-                        style={[styles.textInput, styles.textArea]}
-                        placeholder="內容..."
-                        onChangeText={setContent}
-                        value={content}
-                        multiline
-                    />
-                </View>
+            <View style={styles.form}>
+                <TextInput
+                    style={styles.textTitleInput}
+                    placeholder="標題"
+                    onChangeText={setTitle}
+                    value={title}
+                />
+                <ImagePicker onImageTaken={imageTakenHandler} originImage={selectedImage} />
+                <TextInput
+                    style={[styles.textInput, styles.textArea]}
+                    placeholder="內容..."
+                    onChangeText={setContent}
+                    value={content}
+                    multiline
+                />
+            </View>
             <Pressable style={styles.buttonContainer} onPress={saveNoteHandler}>
                 <Text style={styles.buttonText}>儲存筆記</Text>
             </Pressable>

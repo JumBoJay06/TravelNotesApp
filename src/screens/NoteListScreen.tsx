@@ -13,7 +13,7 @@ interface Props {
     navigation: NoteListScreenNavigationProp;
 }
 
-const NoteListScreen= ({ navigation }: Props) => {
+const NoteListScreen = ({ navigation }: Props) => {
     const dispatch = useDispatch<AppDispatch>();
     const { notes, status } = useSelector((state: RootState) => state.notes);
 
@@ -31,26 +31,28 @@ const NoteListScreen= ({ navigation }: Props) => {
     }, [notes, dispatch, status]);
 
     if (status === 'loading') {
-        return <View style={styles.center}><Text>載入中...</Text></View>
+        return <View style={styles.emptyListText}><Text>載入中...</Text></View>
     }
 
     return (
         <View style={styles.container}>
-            <View style={styles.center}>
+            <View style={{ flex: 1 }}>
                 {
-                notes.length === 0 ?
-                    <Text>還沒有任何筆記，點擊下方按鈕新增吧！</Text> :
-                    <FlatList
-                        data={notes}
-                        keyExtractor={(item) => item.id}
-                        renderItem={({ item }) => (
-                            <NoteItem
-                                note={item}
-                                onPress={() => navigation.navigate('NoteDetail', { noteId: item.id })}
-                            />
-                        )}
-                    />
-            }
+                    notes.length === 0 ?
+                    <View style={styles.emptyListText}><Text>還沒有任何筆記，點擊下方按鈕新增吧！</Text></View> :
+                        <View style={styles.noteList}>
+                            <FlatList
+                            data={notes}
+                            keyExtractor={(item) => item.id}
+                            renderItem={({ item }) => (
+                                <NoteItem
+                                    note={item}
+                                    onPress={() => navigation.navigate('NoteDetail', { noteId: item.id })}
+                                />
+                            )}
+                        />
+                        </View>
+                }
             </View>
             <Pressable onPress={() => navigation.navigate('AddNote')} style={styles.addPressable}>
                 <Text style={styles.addText}>新增筆記</Text>
@@ -64,7 +66,13 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#f5f5f5',
     },
-    center: {
+    emptyListText: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 16,
+    },
+    noteList: {
         flex: 1,
         padding: 16,
     },

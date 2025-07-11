@@ -53,14 +53,24 @@ const notesSlice = createSlice({
     initialState,
     reducers: {
         // 新增一筆筆記
-        addNote: (state, action: PayloadAction<Omit<Note, 'date'>>) => {
-            const id = action.payload.id;
+        addNote: (state, action: PayloadAction<Omit<Note, 'id' | 'date'>>) => {
             const newNote: Note = {
-                id: id || new Date().getTime().toString(), // 使用時間戳作為唯一 ID
+                id: new Date().getTime().toString(), // 使用時間戳作為唯一 ID
                 date: new Date().toISOString(),
                 ...action.payload,
             };
             state.notes.unshift(newNote); // 將新筆記加到最前面
+        },
+        // 修改一筆筆記
+        updateNote: (state, action: PayloadAction<Omit<Note, 'date'>>) => {
+            const index = state.notes.findIndex((note) => note.id === action.payload.id);
+            if (index !== -1) {
+                state.notes[index] = {
+                    ...state.notes[index],
+                    ...action.payload,
+                    date: new Date().toISOString(), // 更新日期為當前時間
+                };
+            }
         },
         // 刪除一筆筆記
         deleteNote: (state, action: PayloadAction<string>) => {
@@ -84,6 +94,6 @@ const notesSlice = createSlice({
     },
 });
 
-export const { addNote, deleteNote } = notesSlice.actions;
+export const { addNote, updateNote, deleteNote } = notesSlice.actions;
 
 export default notesSlice.reducer;
