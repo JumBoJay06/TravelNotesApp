@@ -1,12 +1,10 @@
 import React, { useState, useLayoutEffect } from 'react';
 import { View, StyleSheet, TextInput, Pressable, Text, Alert, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { addNote, updateNote } from '../redux/notesSlice';
 import ImagePicker from '../components/ImagePicker';
-import { RootState } from '../redux/store';
+import { useNoteStore } from '../store/noteStore';
 
 type NoteAddEditScreenRouteProp = RouteProp<RootStackParamList, 'NoteAddEditor'>;
 type NoteAddEditScreenNavigationProp = StackNavigationProp<RootStackParamList, 'NoteAddEditor'>;
@@ -18,15 +16,11 @@ interface Props {
 
 const NoteAddEditScreen = ({ route, navigation }: Props) => {
     const noteId = route.params?.noteId || null;
-    const noteToEdit = useSelector((state: RootState) =>
-        noteId ? state.notes.notes.find((n) => n.id === noteId) : null
-    );
+    const { notes, addNote, updateNote } = useNoteStore();
+    const noteToEdit = noteId ? notes.find((n) => n.id == noteId) : null;
     const [title, setTitle] = useState(noteToEdit?.title || '');
     const [content, setContent] = useState(noteToEdit?.content || '');
     const [selectedImages, setSelectedImages] = useState<string[]>(noteToEdit?.imageUris || []);
-
-
-    const dispatch = useDispatch();
 
     useLayoutEffect(() => {
         navigation.setOptions({ title: noteId ? '編輯筆記' : '新增筆記' });
@@ -44,10 +38,10 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
 
         if (noteId && noteToEdit) {
             // 編輯現有筆記
-            dispatch(updateNote({ title, content, imageUris: selectedImages, id: noteId }));
+            updateNote({ title, content, imageUris: selectedImages, id: noteId });
         } else {
             // 新增新筆記
-            dispatch(addNote({ title, content, imageUris: selectedImages }));
+            addNote({ title, content, imageUris: selectedImages });
         }
 
         navigation.goBack(); // 返回上一頁

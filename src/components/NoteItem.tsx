@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
-import { Note } from '../redux/notesSlice';
+import { Note } from '../store/noteStore';
 
 interface NoteItemProps {
     note: Note;

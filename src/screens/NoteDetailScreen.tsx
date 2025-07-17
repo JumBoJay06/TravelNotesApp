@@ -1,11 +1,9 @@
 import React, { useLayoutEffect } from 'react';
 import { View, Text, StyleSheet, Image, ScrollView, Pressable, Alert, FlatList, Dimensions } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { RootState } from '../redux/store';
-import { deleteNote } from '../redux/notesSlice';
+import { useNoteStore } from '../store/noteStore';
 
 type NoteDetailScreenRouteProp = RouteProp<RootStackParamList, 'NoteDetail'>;
 type NoteDetailScreenNavigationProp = StackNavigationProp<RootStackParamList, 'NoteDetail'>;
@@ -15,15 +13,14 @@ interface Props {
     navigation: NoteDetailScreenNavigationProp;
 }
 
+// TODO: 這邊要查查有什麼效果
 const { width } = Dimensions.get('window');
 
 const NoteDetailScreen = ({ route, navigation }: Props) => {
     const { noteId } = route.params;
-    const dispatch = useDispatch();
+    const { notes, deleteNote } = useNoteStore();
 
-    const note = useSelector((state: RootState) =>
-        state.notes.notes.find((n) => n.id === noteId)
-    );
+    const note = notes.find((n) => n.id === noteId);
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -45,7 +42,7 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
                     text: '刪除',
                     style: 'destructive',
                     onPress: () => {
-                        dispatch(deleteNote(noteId));
+                        deleteNote(noteId);
                         navigation.goBack();
                     },
                 },
@@ -74,7 +71,7 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
                         data={note.imageUris}
                         horizontal={true}
                         pagingEnabled={true}
-                        keyExtractor={(item, index) => `${item}-${index}`}
+                        keyExtractor={(item) => item}
                         renderItem={({ item }) => (
                             <Image source={{ uri: item }} style={styles.image} />
                         )}

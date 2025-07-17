@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react';
 import { View, FlatList, StyleSheet, Text, Pressable } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { RootState, AppDispatch } from '../redux/store';
-import { loadNotesAsync, saveNotesAsync } from '../redux/notesSlice';
 import NoteItem from '../components/NoteItem';
+import { useNoteStore } from '../store/noteStore';
 
 type NoteListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'NoteList'>;
 
@@ -14,21 +12,20 @@ interface Props {
 }
 
 const NoteListScreen = ({ navigation }: Props) => {
-    const dispatch = useDispatch<AppDispatch>();
-    const { notes, status } = useSelector((state: RootState) => state.notes);
+    const { notes, status, loadNotes, saveNotes } = useNoteStore();
 
     // 載入筆記資料
     useEffect(() => {
-        dispatch(loadNotesAsync());
-    }, [dispatch]);
+        loadNotes();
+    }, [loadNotes]);
 
     // 當 notes 狀態改變時，自動儲存到 AsyncStorage
     useEffect(() => {
         // 只有在非載入狀態時才儲存，避免初始載入時就覆蓋資料
         if (status !== 'loading') {
-            dispatch(saveNotesAsync(notes));
+            saveNotes();
         }
-    }, [notes, dispatch, status]);
+    }, [notes, saveNotes, status]);
 
     if (status === 'loading') {
         return <View style={styles.emptyListText}><Text>載入中...</Text></View>
