@@ -99,7 +99,7 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
                     </Text>
                     {note.latitude && note.longitude && (
                         <Pressable style={styles.mapButton} onPress={openMapHandler}>
-                            <Text style={styles.mapButtonText}>在地圖上查看</Text>
+                            <Text style={styles.mapButtonText}>在地圖上查看位置</Text>
                         </Pressable>
                     )}
                     <Text style={styles.content}>{note.content}</Text>
