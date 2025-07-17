@@ -5,12 +5,20 @@ import { createStackNavigator } from '@react-navigation/stack';
 import NoteListScreen from '../screens/NoteListScreen';
 import NoteAddEditScreen from '../screens/NoteAddEditScreen';
 import NoteDetailScreen from '../screens/NoteDetailScreen';
+import MapScreen from '../screens/MapScreen';
 
 // 定義導覽器的參數型別
 export type RootStackParamList = {
     NoteList: undefined; // 列表頁不需要參數
-    NoteAddEditor: { noteId?: string };  // 編輯頁，noteId 是可選的
+    NoteAddEditor: { 
+        noteId?: string;
+        pickedLocation?: { latitude: number; longitude: number }; 
+    };  // 編輯頁，noteId 是可選的
     NoteDetail: { noteId: string }; // 細節頁需要傳入 noteId
+    Map: { // Map 頁面的參數
+        noteId?: string; // 回傳用的
+        initialLocation?: { latitude: number; longitude: number };
+    };
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -52,6 +60,11 @@ const AppNavigator = () => {
                         name="NoteDetail"
                         component={NoteDetailScreen}
                         options={{ title: '筆記詳情' }}
+                    />
+                    <Stack.Screen // 新增 Map 頁面
+                        name="Map"
+                        component={MapScreen}
+                        options={{ title: '選擇地點' }}
                     />
                 </Stack.Navigator>
             </NavigationContainer>

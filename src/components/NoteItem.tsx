@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, Pressable } from 'react-native';
+import { FontAwesome5 } from '@expo/vector-icons';
 import { Note } from '../store/noteStore';
 
 interface NoteItemProps {
@@ -8,24 +9,30 @@ interface NoteItemProps {
 }
 
 const NoteItem = ({ note, onPress }: NoteItemProps) => {
+    const hasMapMarker = note.latitude && note.longitude;
     return (
         <Pressable style={styles.container} onPress={onPress}>
             {note.imageUris && note.imageUris.length > 0 && (
                 <Image source={{ uri: note.imageUris[0] }} style={styles.image} />
             )}
             <View style={styles.infoContainer}>
-                <Text style={styles.title}>{note.title}</Text>
+                <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+                    {note.title}
+                </Text>
                 <Text style={styles.dateText}>
                     {new Date(note.date).toLocaleDateString()}
                 </Text>
             </View>
+            {hasMapMarker && <View style={styles.hasMapMarkerContainer}>
+                <FontAwesome5 name="map-marked-alt" size={24} color="#007cdb" />
+            </View>}
+
         </Pressable>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         flexDirection: 'row',
         margin: 8,
         padding: 16,
@@ -41,7 +48,8 @@ const styles = StyleSheet.create({
         marginRight: 1,
     },
     infoContainer: {
-        margin: 8,
+        flex: 1,
+        padding: 8,
     },
     title: {
         fontSize: 18,
@@ -52,6 +60,9 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#888',
         marginTop: 5,
+    },
+    hasMapMarkerContainer: {
+        padding: 8
     },
 });
 

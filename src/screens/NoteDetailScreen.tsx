@@ -1,9 +1,10 @@
 import React, { useLayoutEffect } from 'react';
-import { View, Text, StyleSheet, Image, ScrollView, Pressable, Alert, FlatList, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, ScrollView, Pressable, Alert, FlatList, Dimensions, Platform, Linking } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useNoteStore } from '../store/noteStore';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 type NoteDetailScreenRouteProp = RouteProp<RootStackParamList, 'NoteDetail'>;
 type NoteDetailScreenNavigationProp = StackNavigationProp<RootStackParamList, 'NoteDetail'>;
@@ -25,8 +26,8 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
     useLayoutEffect(() => {
         navigation.setOptions({
             headerRight: () => (
-                <Pressable onPress={deleteHandler}>
-                    <Text style={styles.deleteNoteText}>刪除</Text>
+                <Pressable onPress={deleteHandler} style={styles.deleteIcon}>
+                    <MaterialCommunityIcons name='delete-forever' size={28} color='#fff' />
                 </Pressable>
             ),
         });
@@ -53,6 +54,19 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
 
     const handleEditPress = () => {
         navigation.navigate('NoteAddEditor', { noteId });
+    };
+
+    const openMapHandler = () => {
+        if (note?.latitude && note?.longitude) {
+            const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
+            const latLng = `${note.latitude},${note.longitude}`;
+            const label = note.title;
+            const url = Platform.select({
+                ios: `${scheme}${label}@${latLng}`,
+                android: `${scheme}${latLng}(${label})`
+            });
+            if (url) Linking.openURL(url);
+        }
     };
 
     if (!note) {
@@ -83,6 +97,11 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
                     <Text style={styles.date}>
                         {new Date(note.date).toLocaleString()}
                     </Text>
+                    {note.latitude && note.longitude && (
+                        <Pressable style={styles.mapButton} onPress={openMapHandler}>
+                            <Text style={styles.mapButtonText}>在地圖上查看</Text>
+                        </Pressable>
+                    )}
                     <Text style={styles.content}>{note.content}</Text>
 
                 </View>
@@ -131,13 +150,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    deleteNoteText: {
-        color: 'red',
-        fontSize: 18,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        paddingRight: 16,
-    },
     editButton: {
         backgroundColor: '#007cdb',
         padding: 16,
@@ -147,6 +159,26 @@ const styles = StyleSheet.create({
     },
     editButtonText: {
         color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    deleteIcon: {
+        paddingVertical: 10,
+        marginRight: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    mapButton: {
+        borderColor:'#007cdb',
+        borderWidth: 1,
+        padding: 16,
+        borderRadius: 8,
+        alignItems: 'center',
+        marginBottom: 16,
+    },
+    mapButtonText: {
+        color: '#000',
         fontSize: 18,
         fontWeight: 'bold',
         textAlign: 'center',

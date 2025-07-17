@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect } from 'react';
+import React, { useState, useLayoutEffect, useEffect } from 'react';
 import { View, StyleSheet, TextInput, Pressable, Text, Alert, KeyboardAvoidingView, ScrollView, Platform } from 'react-native';
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -21,6 +21,17 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
     const [title, setTitle] = useState(noteToEdit?.title || '');
     const [content, setContent] = useState(noteToEdit?.content || '');
     const [selectedImages, setSelectedImages] = useState<string[]>(noteToEdit?.imageUris || []);
+    const [pickedLocation, setPickedLocation] = useState(
+        noteToEdit && noteToEdit.latitude && noteToEdit.longitude
+            ? { latitude: noteToEdit.latitude, longitude: noteToEdit.longitude }
+            : null
+    );
+
+    useEffect(() => {
+        if (route.params?.pickedLocation) {
+             setPickedLocation(route.params.pickedLocation);
+        }
+    }, [route.params?.pickedLocation]);
 
     useLayoutEffect(() => {
         navigation.setOptions({ title: noteId ? '編輯筆記' : '新增筆記' });
@@ -30,18 +41,33 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
         setSelectedImages(imageUris);
     };
 
+    const pickLocationHandler = () => {
+        navigation.navigate('Map', {
+            noteId: noteId,
+            initialLocation: pickedLocation,
+        });
+    };
+
     const saveNoteHandler = () => {
         if (!title.trim() || !content.trim()) {
             Alert.alert('輸入不完整', '請輸入標題和內容。');
             return;
         }
 
+        const noteData = {
+            title,
+            content,
+            imageUris: selectedImages,
+            latitude: pickedLocation?.latitude,
+            longitude: pickedLocation?.longitude,
+        };
+
         if (noteId && noteToEdit) {
             // 編輯現有筆記
-            updateNote({ title, content, imageUris: selectedImages, id: noteId });
+            updateNote({ ...noteData, id: noteId });
         } else {
             // 新增新筆記
-            addNote({ title, content, imageUris: selectedImages });
+            addNote(noteData);
         }
 
         navigation.goBack(); // 返回上一頁
@@ -62,6 +88,18 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
                         value={title}
                     />
                     <ImagePicker onImagesTaken={imageTakenHandler} originImages={selectedImages} />
+                    
+                    <View style={styles.locationContainer}>
+                        <Pressable onPress={pickLocationHandler} style={styles.locationButton}>
+                            <Text style={styles.locationButtonText}>選擇地點</Text>
+                        </Pressable>
+                        {pickedLocation && (
+                             <Text style={styles.locationText}>
+                                 緯度: {pickedLocation.latitude.toFixed(4)}, 經度: {pickedLocation.longitude.toFixed(4)}
+                             </Text>
+                        )}
+                    </View>
+                    
                     <TextInput
                         style={[styles.textInput, styles.textArea]}
                         placeholder="內容..."
@@ -113,6 +151,27 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 18,
         fontWeight: 'bold',
+    },
+    locationContainer: {
+        marginBottom: 16,
+    },
+    locationButton: {
+        borderColor: '#007cdb',
+        borderWidth: 1,
+        padding: 16,
+        borderRadius: 8,
+        alignItems: 'center',
+        width: '100%',
+    },
+    locationButtonText: {
+        color: '#000',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    locationText: {
+        marginTop: 8,
+        textAlign: 'center',
+        color: '#555',
     }
 });
 

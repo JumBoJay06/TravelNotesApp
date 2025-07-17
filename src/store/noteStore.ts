@@ -18,6 +18,8 @@ export interface Note {
     content: string;
     imageUris: string[]; // 圖片的 URI 陣列
     date: string;
+    latitude?: number;  // 緯度
+    longitude?: number; // 經度
 }
 
 // 定義 Zustand store 的狀態和操作的結構
