@@ -1,6 +1,6 @@
-import React, { useState, useLayoutEffect, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useLayoutEffect, useEffect, useRef } from 'react';
 import { View, StyleSheet, Pressable, Text, Alert, TextInput, Keyboard } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, MapPressEvent } from 'react-native-maps';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import * as Location from 'expo-location';
@@ -17,6 +17,11 @@ interface Props {
 // 搜尋用
 const Maps_API_KEY = process.env.EXPO_PUBLIC_Maps_API_KEY;
 
+const INITIAL_LATITUDE_DELTA = 0.0922;
+const INITIAL_LONGITUDE_DELTA = 0.0421;
+const DEFAULT_LATITUDE = 25.0330;
+const DEFAULT_LONGITUDE = 25.0330;
+
 const MapScreen = ({ navigation, route }: Props) => {
     const noteId = route.params?.noteId;
     const initialLocation = route.params?.initialLocation;
@@ -25,10 +30,10 @@ const MapScreen = ({ navigation, route }: Props) => {
     const mapRef = useRef<MapView>(null);
 
     const region = {
-        latitude: initialLocation?.latitude || 25.0330,
-        longitude: initialLocation?.longitude || 121.5654,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
+        latitude: initialLocation?.latitude || DEFAULT_LATITUDE,
+        longitude: initialLocation?.longitude || DEFAULT_LONGITUDE,
+        latitudeDelta: INITIAL_LATITUDE_DELTA,
+        longitudeDelta: INITIAL_LONGITUDE_DELTA,
     };
     
     // 自動取得目前位置
@@ -51,27 +56,25 @@ const MapScreen = ({ navigation, route }: Props) => {
             // 將地圖中心移動到目前位置
             mapRef.current?.animateToRegion({
                     ...currentLocation,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
+                    latitudeDelta: INITIAL_LATITUDE_DELTA,
+                    longitudeDelta: INITIAL_LONGITUDE_DELTA,
                 });
         })();
     }, []);
 
-    const selectLocationHandler = (event: any) => {
+    const selectLocationHandler = (event: MapPressEvent) => {
         const { latitude, longitude } = event.nativeEvent.coordinate;
         setSelectedLocation({ latitude, longitude });
     };
 
-    const savePickedLocationHandler = () => {
-        if (!selectedLocation) {
-            Alert.alert('尚未選擇地點', '請在地圖上點選一個位置！');
-            return;
-        }
-        navigation.popTo('NoteAddEditor', { 
-            noteId: noteId,
-            pickedLocation: selectedLocation 
-        });
-    };
+    const savePickedLocationHandler = useCallback(() => {
+    // ...
+    // 這裡使用了 navigation 物件
+    navigation.popTo('NoteAddEditor', {
+        noteId: noteId, // 這裡使用了 noteId
+        pickedLocation: selectedLocation // 這裡使用了 selectedLocation
+    });
+}, [navigation, selectedLocation, noteId]); 
 
     const handleSearch = async () => {
         Keyboard.dismiss();

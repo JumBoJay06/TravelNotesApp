@@ -1,15 +1,7 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { produce } from 'immer';
-
-// 定義單一筆記的資料結構
-export interface Note {
-    id: string;
-    title: string;
-    content: string;
-    imageUris: string[]; // 圖片的 URI 陣列
-    date: string;
-}
+import { nanoid } from 'nanoid/non-secure'
 
 // 定義單一筆記的資料結構
 export interface Note {
@@ -75,7 +67,7 @@ export const useNoteStore = create<NotesState>((set, get) => ({
         set(produce((state: NotesState) => {
             // 建立一筆新的筆記物件
             const newNote: Note = {
-                id: new Date().getTime().toString(), // 使用當前時間戳作為唯一 ID
+                id: nanoid(), // 唯一 ID
                 date: new Date().toISOString(), // 使用當前時間的 ISO 字串作為日期
                 ...note, // 展開傳入的筆記資料 (標題、內容、圖片)
             };
