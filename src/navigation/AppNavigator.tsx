@@ -6,18 +6,19 @@ import NoteListScreen from '../screens/NoteListScreen';
 import NoteAddEditScreen from '../screens/NoteAddEditScreen';
 import NoteDetailScreen from '../screens/NoteDetailScreen';
 import MapScreen from '../screens/MapScreen';
+import { Coord } from '../store/noteStore';
 
 // 定義導覽器的參數型別
 export type RootStackParamList = {
     NoteList: undefined; // 列表頁不需要參數
     NoteAddEditor: { 
         noteId?: string;
-        pickedLocation?: { latitude: number; longitude: number }; 
+        pickedLocation?: Coord; 
     };  // 編輯頁，noteId 是可選的
     NoteDetail: { noteId: string }; // 細節頁需要傳入 noteId
     Map: { // Map 頁面的參數
         noteId?: string; // 回傳用的
-        initialLocation?: { latitude: number; longitude: number };
+        initialLocation?: Coord;
     };
 };
 

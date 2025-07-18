@@ -14,7 +14,7 @@ interface Props {
     navigation: NoteDetailScreenNavigationProp;
 }
 
-// TODO: 這邊要查查有什麼效果
+// 讓圖片寬度跟手機寬度一致
 const { width } = Dimensions.get('window');
 
 const NoteDetailScreen = ({ route, navigation }: Props) => {
@@ -22,6 +22,8 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
     const { notes, deleteNote } = useNoteStore();
 
     const note = notes.find((n) => n.id === noteId);
+
+    console.log(` Jay : ${note.coord.name}`);
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -57,10 +59,11 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
     };
 
     const openMapHandler = () => {
-        if (note?.latitude && note?.longitude) {
+        if (note?.coord) {
+            const location = note.coord;
             const scheme = Platform.select({ ios: 'maps:0,0?q=', android: 'geo:0,0?q=' });
-            const latLng = `${note.latitude},${note.longitude}`;
-            const label = note.title;
+            const latLng = `${location.latitude},${location.longitude}`;
+            const label = location.name;
             const url = Platform.select({
                 ios: `${scheme}${label}@${latLng}`,
                 android: `${scheme}${latLng}(${label})`
@@ -97,7 +100,7 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
                     <Text style={styles.date}>
                         {new Date(note.date).toLocaleString()}
                     </Text>
-                    {note.latitude && note.longitude && (
+                    {note.coord && (
                         <Pressable style={styles.mapButton} onPress={openMapHandler}>
                             <Text style={styles.mapButtonText}>在地圖上查看位置</Text>
                         </Pressable>

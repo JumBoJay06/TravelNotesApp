@@ -15,6 +15,7 @@ interface Props {
 }
 
 const NoteAddEditScreen = ({ route, navigation }: Props) => {
+    // 編輯的話會帶 noteId
     const noteId = route.params?.noteId || null;
     const { notes, addNote, updateNote } = useNoteStore();
     const noteToEdit = noteId ? notes.find((n) => n.id == noteId) : null;
@@ -22,25 +23,29 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
     const [content, setContent] = useState(noteToEdit?.content || '');
     const [selectedImages, setSelectedImages] = useState<string[]>(noteToEdit?.imageUris || []);
     const [pickedLocation, setPickedLocation] = useState(
-        noteToEdit && noteToEdit.latitude && noteToEdit.longitude
-            ? { latitude: noteToEdit.latitude, longitude: noteToEdit.longitude }
+        noteToEdit && noteToEdit.coord
+            ? noteToEdit.coord
             : null
     );
 
+    // 選完位置返回時，取得經緯度
     useEffect(() => {
         if (route.params?.pickedLocation) {
              setPickedLocation(route.params.pickedLocation);
         }
     }, [route.params?.pickedLocation]);
 
+    // 有無 noteId 判斷是否編輯還是新增
     useLayoutEffect(() => {
         navigation.setOptions({ title: noteId ? '編輯筆記' : '新增筆記' });
     }, [navigation, noteId]);
 
+    // 處理圖片
     const imageTakenHandler = (imageUris: string[]) => {
         setSelectedImages(imageUris);
     };
 
+    // 跳轉到地圖頁，有經緯度就帶過去
     const pickLocationHandler = () => {
         navigation.navigate('Map', {
             noteId: noteId,
@@ -48,6 +53,7 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
         });
     };
 
+    // 保存
     const saveNoteHandler = () => {
         if (!title.trim() || !content.trim()) {
             Alert.alert('輸入不完整', '請輸入標題和內容。');
@@ -58,8 +64,7 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
             title,
             content,
             imageUris: selectedImages,
-            latitude: pickedLocation?.latitude,
-            longitude: pickedLocation?.longitude,
+            ...pickedLocation
         };
 
         if (noteId && noteToEdit) {
@@ -74,6 +79,7 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
     };
 
     return (
+        // 避免鍵盤覆蓋到輸入框
         <KeyboardAvoidingView
             style={{ flex: 1 }}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -95,7 +101,7 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
                         </Pressable>
                         {pickedLocation && (
                              <Text style={styles.locationText}>
-                                 緯度: {pickedLocation.latitude.toFixed(4)}, 經度: {pickedLocation.longitude.toFixed(4)}
+                                 {pickedLocation.name}
                              </Text>
                         )}
                     </View>

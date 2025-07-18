@@ -29,7 +29,7 @@ const MapScreen = ({ navigation, route }: Props) => {
     const [searchQuery, setSearchQuery] = useState('');
     const mapRef = useRef<MapView>(null);
 
-    const region = {
+    const initRegion = {
         latitude: initialLocation?.latitude || DEFAULT_LATITUDE,
         longitude: initialLocation?.longitude || DEFAULT_LONGITUDE,
         latitudeDelta: INITIAL_LATITUDE_DELTA,
@@ -47,15 +47,16 @@ const MapScreen = ({ navigation, route }: Props) => {
                 return;
             }
 
-            let location = await Location.getCurrentPositionAsync({});
+            let location = await Location.getCurrentPositionAsync({}); 
             const currentLocation = {
+                name: `(${location.coords.latitude}, ${location.coords.longitude})`,
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude,
             }
             setSelectedLocation(currentLocation);
             // 將地圖中心移動到目前位置
             mapRef.current?.animateToRegion({
-                ...region,
+                ...initRegion,
                 ...currentLocation,
             });
         })();
@@ -63,11 +64,11 @@ const MapScreen = ({ navigation, route }: Props) => {
 
     const selectLocationHandler = (event: MapPressEvent) => {
         const { latitude, longitude } = event.nativeEvent.coordinate;
-        setSelectedLocation({ latitude, longitude });
+        const name = `(${latitude}, ${longitude})`;
+        setSelectedLocation({ name,latitude, longitude });
     };
 
     const savePickedLocationHandler = useCallback(() => {
-        // ...
         // 這裡使用了 navigation 物件
         navigation.popTo('NoteAddEditor', {
             noteId: noteId, // 這裡使用了 noteId
@@ -84,7 +85,7 @@ const MapScreen = ({ navigation, route }: Props) => {
             const data = await response.json();
             if (data.status === 'OK' && data.results.length > 0) {
                 const { lat, lng } = data.results[0].geometry.location;
-                const newLocation = { latitude: lat, longitude: lng };
+                const newLocation = { name: searchQuery, latitude: lat, longitude: lng };
                 setSelectedLocation(newLocation);
                 mapRef.current?.animateToRegion({
                     ...newLocation,
@@ -92,7 +93,6 @@ const MapScreen = ({ navigation, route }: Props) => {
                     longitudeDelta: 0.0421,
                 });
             } else {
-                console.log(data);
                 Alert.alert('找不到地點', '請嘗試不同的關鍵字。');
             }
         } catch (error) {
@@ -127,7 +127,7 @@ const MapScreen = ({ navigation, route }: Props) => {
             <MapView
                 ref={mapRef}
                 style={styles.map}
-                initialRegion={region}
+                initialRegion={initRegion}
                 onPress={selectLocationHandler}
             >
                 {selectedLocation && (

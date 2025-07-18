@@ -9,7 +9,7 @@ interface NoteItemProps {
 }
 
 const NoteItem = ({ note, onPress }: NoteItemProps) => {
-    const hasMapMarker = note.latitude && note.longitude;
+    const hasMapMarker = note.coord;
     return (
         <Pressable style={styles.container} onPress={onPress}>
             {note.imageUris && note.imageUris.length > 0 && (
