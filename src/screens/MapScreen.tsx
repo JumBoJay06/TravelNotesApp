@@ -35,7 +35,7 @@ const MapScreen = ({ navigation, route }: Props) => {
         latitudeDelta: INITIAL_LATITUDE_DELTA,
         longitudeDelta: INITIAL_LONGITUDE_DELTA,
     };
-    
+
     // 自動取得目前位置
     useEffect(() => {
         (async () => {
@@ -55,10 +55,9 @@ const MapScreen = ({ navigation, route }: Props) => {
             setSelectedLocation(currentLocation);
             // 將地圖中心移動到目前位置
             mapRef.current?.animateToRegion({
-                    ...currentLocation,
-                    latitudeDelta: INITIAL_LATITUDE_DELTA,
-                    longitudeDelta: INITIAL_LONGITUDE_DELTA,
-                });
+                ...region,
+                ...currentLocation,
+            });
         })();
     }, []);
 
@@ -68,13 +67,13 @@ const MapScreen = ({ navigation, route }: Props) => {
     };
 
     const savePickedLocationHandler = useCallback(() => {
-    // ...
-    // 這裡使用了 navigation 物件
-    navigation.popTo('NoteAddEditor', {
-        noteId: noteId, // 這裡使用了 noteId
-        pickedLocation: selectedLocation // 這裡使用了 selectedLocation
-    });
-}, [navigation, selectedLocation, noteId]); 
+        // ...
+        // 這裡使用了 navigation 物件
+        navigation.popTo('NoteAddEditor', {
+            noteId: noteId, // 這裡使用了 noteId
+            pickedLocation: selectedLocation // 這裡使用了 selectedLocation
+        });
+    }, [navigation, selectedLocation, noteId]);
 
     const handleSearch = async () => {
         Keyboard.dismiss();
