@@ -5,6 +5,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import * as Location from 'expo-location';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import { fetchGoogleApi } from '../api/GoogleApis';
 
 type MapScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Map'>;
 type MapScreenRouteProp = RouteProp<RootStackParamList, 'Map'>;
@@ -13,9 +14,6 @@ interface Props {
     navigation: MapScreenNavigationProp;
     route: MapScreenRouteProp;
 }
-
-// 搜尋用
-const Maps_API_KEY = process.env.EXPO_PUBLIC_Maps_API_KEY;
 
 const INITIAL_LATITUDE_DELTA = 0.0922;
 const INITIAL_LONGITUDE_DELTA = 0.0421;
@@ -80,17 +78,14 @@ const MapScreen = ({ navigation, route }: Props) => {
         Keyboard.dismiss();
         if (!searchQuery.trim()) return;
         try {
-            const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(searchQuery)}&key=${Maps_API_KEY}`;
-            const response = await fetch(url);
-            const data = await response.json();
+            const data = await fetchGoogleApi(searchQuery);
             if (data.status === 'OK' && data.results.length > 0) {
                 const { lat, lng } = data.results[0].geometry.location;
                 const newLocation = { name: searchQuery, latitude: lat, longitude: lng };
                 setSelectedLocation(newLocation);
                 mapRef.current?.animateToRegion({
+                    ...initRegion,
                     ...newLocation,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
                 });
             } else {
                 Alert.alert('找不到地點', '請嘗試不同的關鍵字。');

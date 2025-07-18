@@ -4,7 +4,7 @@ import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useNoteStore } from '../store/noteStore';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
 
 type NoteDetailScreenRouteProp = RouteProp<RootStackParamList, 'NoteDetail'>;
 type NoteDetailScreenNavigationProp = StackNavigationProp<RootStackParamList, 'NoteDetail'>;
@@ -22,8 +22,6 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
     const { notes, deleteNote } = useNoteStore();
 
     const note = notes.find((n) => n.id === noteId);
-
-    console.log(` Jay : ${note.coord.name}`);
 
     useLayoutEffect(() => {
         navigation.setOptions({
@@ -101,9 +99,13 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
                         {new Date(note.date).toLocaleString()}
                     </Text>
                     {note.coord && (
+                        <View style={styles.coordContainer}>
+                        <Text style={styles.coordText}  numberOfLines={3} ellipsizeMode="tail">地點：{note.coord.name}</Text>
                         <Pressable style={styles.mapButton} onPress={openMapHandler}>
-                            <Text style={styles.mapButtonText}>在地圖上查看位置</Text>
+                            <FontAwesome5 name="map-marked-alt" size={24} color="#007cdb" />
                         </Pressable>
+                        </View>
+                    
                     )}
                     <Text style={styles.content}>{note.content}</Text>
 
@@ -137,7 +139,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#888',
         textAlign: 'center',
-        marginBottom: 24,
+        marginBottom: 8,
     },
     content: {
         borderColor: '#ccc',
@@ -152,6 +154,17 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    coordContainer: {
+        flexDirection: 'row',
+        marginBottom: 8,
+        paddingHorizontal: 16,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    coordText: {
+        fontSize: 16,
+        textAlign: 'center',
     },
     editButton: {
         backgroundColor: '#007cdb',
@@ -173,12 +186,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     mapButton: {
-        borderColor:'#007cdb',
-        borderWidth: 1,
-        padding: 16,
-        borderRadius: 8,
+        padding: 8,
         alignItems: 'center',
-        marginBottom: 16,
     },
     mapButtonText: {
         color: '#000',

@@ -64,7 +64,7 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
             title,
             content,
             imageUris: selectedImages,
-            ...pickedLocation
+            coord: pickedLocation
         };
 
         if (noteId && noteToEdit) {
