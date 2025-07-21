@@ -52,7 +52,7 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
         );
     };
 
-    const handleEditPress = () => {
+    const editHandle = () => {
         navigation.navigate('NoteAddEditor', { noteId });
     };
 
@@ -111,7 +111,7 @@ const NoteDetailScreen = ({ route, navigation }: Props) => {
 
                 </View>
             </ScrollView>
-            <Pressable style={styles.editButton} onPress={handleEditPress}>
+            <Pressable style={styles.editButton} onPress={editHandle}>
                 <Text style={styles.editButtonText}>編輯筆記</Text>
             </Pressable>
         </View>

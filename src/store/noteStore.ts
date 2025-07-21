@@ -14,7 +14,7 @@ export interface Note {
 }
 
 export interface Coord {
-    name: String;
+    name: string;
     latitude: number;  // 緯度
     longitude: number; // 經度
 }

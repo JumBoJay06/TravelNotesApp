@@ -62,7 +62,7 @@ const AppNavigator = () => {
                         component={NoteDetailScreen}
                         options={{ title: '筆記詳情' }}
                     />
-                    <Stack.Screen // 新增 Map 頁面
+                    <Stack.Screen // Map 頁面
                         name="Map"
                         component={MapScreen}
                         options={{ title: '選擇地點' }}

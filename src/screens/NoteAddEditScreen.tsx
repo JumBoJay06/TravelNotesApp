@@ -85,6 +85,7 @@ const NoteAddEditScreen = ({ route, navigation }: Props) => {
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             keyboardVerticalOffset={90} // 可以微調這個數值
         >
+            {/* 這邊用 contentContainerStyle={{ flexGrow: 1 }} 是讓內文未滿一頁時，可以直接撐滿畫面 */}
             <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
                 <View style={styles.form}>
                     <TextInput

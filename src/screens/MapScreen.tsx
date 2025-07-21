@@ -15,10 +15,11 @@ interface Props {
     route: MapScreenRouteProp;
 }
 
+// Delta 地圖的可視範圍大小
 const INITIAL_LATITUDE_DELTA = 0.0922;
 const INITIAL_LONGITUDE_DELTA = 0.0421;
-const DEFAULT_LATITUDE = 25.0330;
-const DEFAULT_LONGITUDE = 25.0330;
+const DEFAULT_LATITUDE = 22.6282173;
+const DEFAULT_LONGITUDE = 120.293041;
 
 const MapScreen = ({ navigation, route }: Props) => {
     const noteId = route.params?.noteId;
